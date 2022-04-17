@@ -87,15 +87,15 @@ Y = [ mu_ldp, omega_dp, 0, 0, 0, 0, mu_ld, mu_md, mu_md*omega, mu_nd, omega_d, 0
 ve = v-vc;
 
 %% Controller gain
-Kp = 5*eye(4);
-K = 0.05*eye(27);
+Kp = 10*eye(4);
+K = 0.8*eye(27);
 
 %% Adaptation Law
 xp = -inv(K)*Y'*ve;
 x = x + xp*ts;
 
 control =Y*x-Kp*ve;
-%control =Y*x_init-Kp*ve;
+% control =Y*x_init-Kp*ve;
 
 vref = control;
 % 

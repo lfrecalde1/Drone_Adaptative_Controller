@@ -94,8 +94,8 @@ if aux == 1
     vref = Y*x;
 else
     %% Las dos son equivalentes
-    vref = Y*x_ini;
-    %vref = M*control+C*vc+G;
+    %vref = Y*x_ini;
+    vref = M*control+C*vc+G;
 end
 
 end

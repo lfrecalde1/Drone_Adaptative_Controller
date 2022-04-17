@@ -67,7 +67,8 @@ k4 = 1;
 params_estimados = chi;
 params_real = chi*ones(1,length(t));
 
-
+%% Switch to control adaptative or normal controller
+aux = 1;
 %% SIMULATION 
 for k=1:1:length(t)
     tic; 
@@ -85,11 +86,13 @@ for k=1:1:length(t)
     w(k) = control(1,4);
     
     %% DERIVATIES OF THE CONTROL SIGNALS
-    ulp=diff([ul ul(end)])/ts;
+    ulp=diff([ul ul(end)])/ts
     ump=diff([um um(end)])/ts;
     unp=diff([un un(end)])/ts;
     wp=diff([w w(end)])/ts;
+    paus(1
     vcp = [ulp(k);ump(k);unp(k);wp(k)];
+
     
     %% DYNAMIC COMPENSATION
     [vref,params_estimados(:,k+1)] = dynamic_compensation(vcp, control(1,:)', v(:,k), params_estimados(:,k), chi, k3, k4, ts, aux);
@@ -98,6 +101,10 @@ for k=1:1:length(t)
     v(:,k+1) = system_dynamic(params_real(:,k), v(:,k), vref, ts);
     [h(:,k+1)] = system_drone(h(:,k), v(:,k+1), ts, L);
     
+    minimo = -0.04;
+    maximo =  0.04;
+    r = minimo + (maximo-minimo) .* rand(27,1);
+    params_real(:,k+1) = params_real(:,k)+r;
     %% SAMPLE TIME
     t_sample(k) = toc;
     toc;
@@ -194,5 +201,20 @@ legend({'$\mu_{lc}$','$\mu_{mc}$','$\mu_{nc}$','$\omega_{c}$','$\mu_{l}$','$\mu_
 legend('boxoff')
 %title('$\textrm{Control Values}$','Interpreter','latex','FontSize',9);
 ylabel('$[m/s][rad/s]$','Interpreter','latex','FontSize',9);
+xlabel('$\textrm{Time}[s]$','Interpreter','latex','FontSize',9);
+
+figure
+set(gcf, 'PaperUnits', 'inches');
+set(gcf, 'PaperSize', [4 2]);
+set(gcf, 'PaperPositionMode', 'manual');
+set(gcf, 'PaperPosition', [0 0 10 4]);
+plot(t,params_estimados(:,1:length(t)),'linewidth',1); hold on;
+plot(t,params_real(:,1:length(t)),'--','linewidth',1); hold on;
+grid('minor')
+grid on;
+legend({'$\zeta$','$\zeta_r$'},'Interpreter','latex','FontSize',11,'Orientation','horizontal');
+legend('boxoff')
+%title('$\textrm{Evolution of Control Errors}$','Interpreter','latex','FontSize',9);
+ylabel('$[m]$','Interpreter','latex','FontSize',9);
 xlabel('$\textrm{Time}[s]$','Interpreter','latex','FontSize',9);
 

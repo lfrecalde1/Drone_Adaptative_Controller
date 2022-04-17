@@ -68,7 +68,7 @@ params_estimados = chi;
 params_real = chi*ones(1,length(t));
 
 %% Switch to control adaptative or normal controller
-aux = 0;
+aux = 1;
 %% SIMULATION 
 for k=1:1:length(t)
     tic; 
@@ -86,12 +86,21 @@ for k=1:1:length(t)
     w(k) = control(1,4);
     
     %% DERIVATIES OF THE CONTROL SIGNALS
-    ulp=diff([ul ul(end)])/ts;
-    ump=diff([um um(end)])/ts;
-    unp=diff([un un(end)])/ts;
-    wp=diff([w w(end)])/ts;
-    vcp = [ulp(k);ump(k);unp(k);wp(k)];
-    
+
+    if k==1
+        ulp = ul(k)/ts;
+        ump = um(k)/ts;
+        unp= un(k)/ts;
+        wp= w(k)/ts;
+
+    else
+        ulp = (ul(k)-ul(k-1))/ts;
+        ump = (um(k)-um(k-1))/ts;
+        unp = (un(k)-un(k-1))/ts;
+        wp = (w(k)-w(k-1))/ts;
+    end
+%     vcp = [ulp;ump;unp;wp];
+    vcp = [0;0;0;0];
     %% DYNAMIC COMPENSATION
     [vref,params_estimados(:,k+1)] = dynamic_compensation(vcp, control(1,:)', v(:,k), params_estimados(:,k), chi, k3, k4, ts, aux);
     
@@ -102,7 +111,7 @@ for k=1:1:length(t)
     minimo = -0.04;
     maximo =  0.04;
     r = minimo + (maximo-minimo) .* rand(27,1);
-    %params_real(:,k+1) = params_real(:,k)+r;
+    params_real(:,k+1) = params_real(:,k)+r;
     %% SAMPLE TIME
     t_sample(k) = toc;
     toc;
